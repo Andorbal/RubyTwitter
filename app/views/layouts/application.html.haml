@@ -1,9 +1,7 @@
 !!! html
 %html
   %head
-    %title Ruby Twitter
-    = stylesheet_link_tag :all
-    = javascript_include_tag :defaults
+    %title= "Ruby Twitter | #{@title}"
     = csrf_meta_tag
   %body
     = yield
