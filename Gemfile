@@ -8,6 +8,7 @@ gem 'rails', '3.0.7'
 gem 'sqlite3-ruby', '1.3.2', :require => 'sqlite3'
 gem 'haml'
 gem 'haml-rails'
+gem 'gravatar_image_tag'
 
 group :development do
   gem 'rspec-rails', '2.5.0'

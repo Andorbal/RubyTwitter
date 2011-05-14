@@ -1,1 +1,12 @@
-= "#{@user.name}, #{@user.email}"
+%table
+  %tr
+    %td.main
+      %h1
+        = gravatar_for @user
+        = @user.name
+    %td.sidebar.round
+      %strong Name
+      = @user.name
+      %br/
+      %strong URL
+      = link_to user_path(@user), @user
