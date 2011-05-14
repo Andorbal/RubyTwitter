@@ -12,6 +12,7 @@ gem 'haml-rails'
 group :development do
   gem 'rspec-rails', '2.5.0'
   gem 'ZenTest', '4.5.0'
+  gem 'annotate-models'
 end
 
 group :test do
