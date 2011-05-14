@@ -1,7 +1,8 @@
 %header
-  = image_tag "logo.png", alt: "Ruby Twitter", class: "round"
+  - logo = image_tag "logo.png", alt: "Ruby Twitter", class: "round"
+  = link_to logo, root_path
   %nav.round
     %ul
-      %li= link_to "Home", '#'
-      %li= link_to "Help", '#'
+      %li= link_to "Home", root_path
+      %li= link_to "Help", help_path
       %li= link_to "Sign in", '#'
