@@ -15,5 +15,6 @@
       %strong URL
       = link_to user_path(@user), @user
       %br/
-      %strong Microposts
-      = @user.microposts.count
+      %span.microposts
+        %strong Microposts
+        %span= @user.microposts.count

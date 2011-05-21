@@ -13,6 +13,19 @@ describe PagesController do
       get 'home'
       response.should have_selector("title", :content => "Ruby Twitter | Home")
     end
+
+    describe "with signed-on user" do
+      before(:each) do
+        @user = test_sign_in(Factory(:user, email: "foobar@example.org"))
+        Factory(:micropost, user: @user, content: "foo")
+        Factory(:micropost, user: @user, content: "bar")
+      end
+
+      it "should have the correct micropost count" do
+        get :home
+        response.should have_selector("span.microposts", content: "2 microposts")
+      end
+    end
   end
 
   describe "GET 'contact'" do
