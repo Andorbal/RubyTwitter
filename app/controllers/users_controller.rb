@@ -61,10 +61,6 @@ class UsersController < ApplicationController
   end
   
   private
-
-  def authenticate
-    deny_access unless signed_in?
-  end
   
   def only_anonymous
     redirect_to(root_path) if signed_in?
