@@ -14,41 +14,73 @@ describe UsersController do
 
     describe "for signed-in users" do
       before(:each) do
-        @user = test_sign_in(Factory(:user))
+        @user = Factory(:user)
         second = Factory(:user, name: "Bob", email: "another@example.com")
         third = Factory(:user, name: "Ben", email: "another@example.net")
+        @admin_user = Factory(:user, email: "admin@example.com", admin: true)
 
-        @users = [@user, second, third]
+        @users = [@user, second, third, @admin_user]
         30.times do
           @users << Factory(:user, email: Factory.next(:email))
         end
       end
 
-      it "should be successful" do
-        get :index
-        response.should be_success
-      end
+      describe "that are not admin users" do
+        before(:each) do
+          test_sign_in(@user)
+        end
 
-      it "should have the right title" do
-        get :index
-        response.should have_selector("title", content: "All users")
-      end
+        it "shold not show delete links" do
+          get :index
+          response.should_not have_selector("a", content: "delete")
+        end
 
-      it "should have an element for each user" do
-        get :index
-        @users[0..2].each do |user|
-          response.should have_selector("li", content: user.name)
+        it "should be successful" do
+          get :index
+          response.should be_success
+        end
+
+        it "should have the right title" do
+          get :index
+          response.should have_selector("title", content: "All users")
+        end
+
+        it "should have an element for each user" do
+          get :index
+          @users[0..2].each do |user|
+            response.should have_selector("li", content: user.name)
+          end
+        end
+
+        it "should paginate users" do
+          get :index
+          response.should have_selector("div.pagination")
+          response.should have_selector("span.disabled", content: "Previous")
+          response.should have_selector("a", href: "/users?page=2",
+                                             content: "2")
+          response.should have_selector("a", href: "/users?page=2",
+                                             content: "Next")
         end
       end
 
-      it "should paginate users" do
-        get :index
-        response.should have_selector("div.pagination")
-        response.should have_selector("span.disabled", content: "Previous")
-        response.should have_selector("a", href: "/users?page=2",
-                                           content: "2")
-        response.should have_selector("a", href: "/users?page=2",
-                                           content: "Next")
+      describe "that are admin users" do
+        before(:each) do
+          test_sign_in(@admin_user)
+        end
+
+        it "should show the delete link" do
+          get :index
+          @users[0..2].each do |user|
+            response.should have_selector("a", href: "/users/#{user.id}",
+                                               content: "delete")
+          end
+        end
+
+        it "should not show the delete for current user" do
+          get :index
+          response.should_not have_selector("a", href: "/users/#{@admin_user.id}",
+                                                 content: "delete")
+        end
       end
     end
   end
@@ -114,6 +146,14 @@ describe UsersController do
       get :new
       response.should have_selector("input[name='user[password_confirmation]'][type='password']")
     end
+
+    describe "with signed-in user" do
+      it "should deny access" do
+        test_sign_in Factory(:user)
+        get :new
+        response.should redirect_to(root_path)
+      end
+    end
   end
 
   describe "POST 'create'" do
@@ -174,6 +214,14 @@ describe UsersController do
       it "should sign the user in" do
         post :create, user: @attr
         controller.should be_signed_in
+      end
+    end
+
+    describe "with signed-in user" do
+      it "should redirect to home page" do
+        test_sign_in Factory(:user)
+        post :create, user: @attr
+        response.should redirect_to(root_path)
       end
     end
   end
@@ -307,8 +355,8 @@ describe UsersController do
 
     describe "as an admin user" do
       before(:each) do
-        admin = Factory(:user, email: "admin@example.com", admin: true)
-        test_sign_in(admin)
+        @admin_user = Factory(:user, email: "admin@example.com", admin: true)
+        test_sign_in(@admin_user)
       end
 
       it "should destroy the user" do
@@ -320,6 +368,12 @@ describe UsersController do
       it "should redirect to the users page" do
         delete :destroy, id: @user
         response.should redirect_to(users_path)
+      end
+
+      it "should protect the current admin" do
+        lambda do
+          delete :destroy, id: @admin_user
+        end.should_not change(User, :count)
       end
     end
   end

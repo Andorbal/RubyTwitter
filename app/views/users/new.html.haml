@@ -1,18 +1,5 @@
 %h1 Sign up
 
 = form_for(@user) do |f|
-  = render 'shared/error_messages', object: f.object
-
-  .field
-    .label= f.label :name
-    .input= f.text_field :name
-  .field
-    .label= f.label :email
-    .input= f.text_field :email
-  .field
-    .label= f.label :password
-    .input= f.password_field :password
-  .field
-    .label= f.label :password_confirmation, "Confirmation"
-    .input= f.password_field :password_confirmation
+  = render 'fields', f: f
   .actions= f.submit "Sign up"
