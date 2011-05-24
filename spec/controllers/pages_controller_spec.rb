@@ -4,26 +4,40 @@ describe PagesController do
   render_views
 
   describe "GET 'home'" do
-    it "should be successful" do
-      get 'home'
-      response.should be_success
-    end
+    describe "when not signed in" do
+      before(:each) do
+        get :home
+      end
 
-    it "should have the right title" do
-      get 'home'
-      response.should have_selector("title", :content => "Ruby Twitter | Home")
-    end
+      it "should be successful" do
+        response.should be_success
+      end
+
+      it "should have the right title" do
+        response.should have_selector("title", :content => "Ruby Twitter | Home")
+      end
+    end  
 
     describe "with signed-on user" do
       before(:each) do
-        @user = test_sign_in(Factory(:user, email: "foobar@example.org"))
+        @user = test_sign_in(Factory(:user))
         Factory(:micropost, user: @user, content: "foo")
         Factory(:micropost, user: @user, content: "bar")
+        other_user = Factory(:user, email: Factory.next(:email))
+        other_user.follow!(@user)
+
+        get :home
       end
 
       it "should have the correct micropost count" do
-        get :home
         response.should have_selector("span.microposts", content: "2 microposts")
+      end
+
+      it "should have the right follower/following counts" do
+        response.should have_selector("a", href: following_user_path(@user),
+                                           content: "0 following")
+        response.should have_selector("a", href: followers_user_path(@user),
+                                           content: "1 follower")
       end
     end
   end
